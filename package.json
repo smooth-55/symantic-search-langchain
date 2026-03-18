@@ -1,0 +1,17 @@
+{
+  "name": "symantic-search-langchain-node",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node main.node.js",
+    "dev": "node --watch main.node.js"
+  },
+  "dependencies": {
+    "@langchain/core": "^1.2.19",
+    "@langchain/google-genai": "^1.0.7",
+    "compute-cosine-similarity": "^1.1.0",
+    "dotenv": "^16.6.1",
+    "zod": "^4.1.11"
+  }
+}
