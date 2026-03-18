@@ -361,3 +361,24 @@ Rules you MUST follow:
 Your goal is to maximize readability while preserving the exact intent of the original text.
 """
 
+
+REVIEW_PROMPT=f"""
+You are an intent matching evaluator.
+
+Your task is to compare TWO Japanese texts:
+
+Text A: {{segment}}
+Text B: {{relevent_doc}}
+
+Goal:
+Determine whether the core intention, meaning, coaching objective, or action focus of Text A matches the intention of Text B.
+
+Evaluation Rules:
+
+1. Focus on INTENT, not just keyword similarity.
+2. If both texts describe the same or gives similer meaning then interpret the result as POSITIVE.
+4. Partial keyword overlap without shared intention must be considered NEGATIVE.
+5. Cause–effect relations are considered POSITIVE if they belong to the same coaching intent.
+6. General philosophy vs specific action instruction is NEGATIVE unless both clearly guide the same behavior.
+"""
+

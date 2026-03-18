@@ -2,7 +2,7 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGener
 from langchain_core.prompts import PromptTemplate
 from sklearn.metrics.pairwise import cosine_similarity
 from typing import TypedDict, Annotated, Optional, Literal
-from constants import Datasets as documents, THRESHOLD, Transcript as user_transcript,PROMPT_TO_SPLIT_INTO_CHUNKS
+from constants import REVIEW_PROMPT, Datasets as documents, THRESHOLD, Transcript as user_transcript,PROMPT_TO_SPLIT_INTO_CHUNKS
 import os
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
@@ -20,8 +20,8 @@ class Transcript(TypedDict):
         "List of very short micro-sentences created by aggressively splitting the transcript. The list should be long."
     ]
 
-class Review(BaseModel):
-    review: Literal['positive', 'negative'] = Field(description='Give the sentiment of the Review')
+class Review(TypedDict):
+    review: Literal['positive', 'negative'] 
 
 class SymenticSearch:
     def __init__(self):
@@ -32,7 +32,7 @@ class SymenticSearch:
             input_variables=["transcript"],
         )
         self.reviewPrompt = PromptTemplate(
-            template=f"Check if the matches are correctly matched with correct intention into negative or positive. \n {{segment}} \n {{relevent_doc}}",
+            template=f"{REVIEW_PROMPT}",
             input_variables=["segment", "relevent_doc"],
         )
        
@@ -67,19 +67,19 @@ class SymenticSearch:
                         #     "matchedWith": relevent_doc,
                         #     "confidence": similarity_score,
                         # })
-                        okay.append((
-                            segment,
-                            relevent_doc,
-                        ))
                         chain2 = self.reviewPrompt | structured_model2
                         result = chain2.invoke({
                             "segment": segment,
                             "relevent_doc": relevent_doc,
                         })
                         print(f"Result from review: {type(result)}, {result}")
-                        review = result.review
+                        review = result["review"]
                         print(f"Review: {review} on the segment: {segment} with the matched doc: {relevent_doc}")
                         if review == "positive":
+                            okay.append((
+                            segment,
+                            relevent_doc,
+                        ))
                             print(f"Segment: {segment}")
                             print(f"Matched with: {relevent_doc}")
                         print(f"   Score: {similarity_score:.2f}")
