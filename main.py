@@ -42,8 +42,8 @@ class SymenticSearch:
         vector_docs = self.embeddings.embed_documents(documents)
         structured_model = self.chat_llm.with_structured_output(Transcript)
         structured_model2 = self.chat_llm.with_structured_output(Review)
-        chain = self.prompt | structured_model  | self.reviewPrompt | structured_model2
-        result = chain.invoke({"transcript": user_transcript})
+        chain1 = self.prompt | structured_model 
+        result = chain1.invoke({"transcript": user_transcript})
         segments = result["segments"]
         print(f"Total segments: {len(segments)}")
         # 4. Loop through each segment and search your database
@@ -71,6 +71,17 @@ class SymenticSearch:
                             segment,
                             relevent_doc,
                         ))
+                        chain2 = self.reviewPrompt | structured_model2
+                        result = chain2.invoke({
+                            "segment": segment,
+                            "relevent_doc": relevent_doc,
+                        })
+                        print(f"Result from review: {type(result)}, {result}")
+                        review = result.review
+                        print(f"Review: {review} on the segment: {segment} with the matched doc: {relevent_doc}")
+                        if review == "positive":
+                            print(f"Segment: {segment}")
+                            print(f"Matched with: {relevent_doc}")
                         print(f"   Score: {similarity_score:.2f}")
         return okay
 
